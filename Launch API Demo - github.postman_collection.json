@@ -1,0 +1,1367 @@
+{
+	"info": {
+		"name": "Launch API Demo - github",
+		"_postman_id": "4906aa89-45f9-4ca5-824a-7224e5b2e9b7",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "StartProcess",
+			"description": "These requests will establish the login to the API and setup the access tokens.  Then we will pull the list of PropertyId's into temporary variables.  prop0-prop200 ",
+			"item": [
+				{
+					"name": "Launch - Get Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "864521af-be98-4b74-afb6-0ad6eb49acd9",
+								"type": "text/javascript",
+								"exec": [
+									"//this script sets the bearer token for future calls.",
+									"",
+									"var jsonData = pm.response.json();",
+									"pm.globals.set(\"bearertoken\", jsonData.access_token);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cache-Control",
+								"value": "no-cache"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "client_id",
+									"value": "client_id_here",
+									"type": "text"
+								},
+								{
+									"key": "client_secret",
+									"value": "client_secret_here",
+									"type": "text"
+								},
+								{
+									"key": "jwt_token",
+									"value": "jwt_token_here",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://ims-na1.adobelogin.com/ims/exchange/jwt/",
+							"protocol": "https",
+							"host": [
+								"ims-na1",
+								"adobelogin",
+								"com"
+							],
+							"path": [
+								"ims",
+								"exchange",
+								"jwt",
+								""
+							]
+						},
+						"description": "This script has to be run first.  You will need the private key information and then go to https://console.adobe.io to generate a new JWT token so that a new bearer token can ben pulled."
+					},
+					"response": []
+				},
+				{
+					"name": "PropertyList",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "3562e53b-a5ac-4553-842e-3d6971d5f208",
+								"type": "text/javascript",
+								"exec": [
+									"// this script sets environment variables for the property id's",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"var last = jsonData.data[jsonData.data.length - 1]",
+									"var i = 0;",
+									"",
+									"while (i < jsonData.data.length) {",
+									"",
+									"    var temp = jsonData.data[i].id;",
+									"   // console.log(temp);",
+									"    pm.environment.set(\"prop\"+i, temp);",
+									"    i++;",
+									"}",
+									"",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearertoken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "api_key_here"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/vnd.api+json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/vnd.api+json;revision=1"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "data",
+									"value": "",
+									"description": "",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "https://mc-api-activation-reactor.adobe.io/companies/{{companiyID}}/properties?page[number]=1&page[size]=100",
+							"protocol": "https",
+							"host": [
+								"mc-api-activation-reactor",
+								"adobe",
+								"io"
+							],
+							"path": [
+								"companies",
+								"{{companiyID}}",
+								"properties"
+							],
+							"query": [
+								{
+									"key": "page[number]",
+									"value": "1",
+									"equals": true
+								},
+								{
+									"key": "page[size]",
+									"value": "100",
+									"equals": true
+								}
+							]
+						},
+						"description": "This script returns the first 100 properites.  This sets them as environment variables prop1---prop200"
+					},
+					"response": []
+				},
+				{
+					"name": "PropertyList - Page 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "dfec643d-a240-4b67-8fb7-04813a454a8c",
+								"type": "text/javascript",
+								"exec": [
+									"// this script sets environment variables for the property id's",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"var last = jsonData.data[jsonData.data.length - 1]",
+									"var i = 1 ;",
+									"var p = 101;",
+									"while (i < jsonData.data.length) {",
+									"",
+									"    var temp = jsonData.data[i].id;",
+									"   // console.log(temp);",
+									"    var p2 = i + p ; ",
+									"    pm.environment.set(\"prop\"+p, temp);",
+									"    i++;",
+									"    p++;",
+									"}",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearertoken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "api_key_here"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/vnd.api+json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/vnd.api+json;revision=1"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "data",
+									"value": "",
+									"description": "",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "https://mc-api-activation-reactor.adobe.io/companies/{{companyID}}/properties?page[number]=2&page[size]=100",
+							"protocol": "https",
+							"host": [
+								"mc-api-activation-reactor",
+								"adobe",
+								"io"
+							],
+							"path": [
+								"companies",
+								"{{companyID}}",
+								"properties"
+							],
+							"query": [
+								{
+									"key": "page[number]",
+									"value": "2",
+									"equals": true
+								},
+								{
+									"key": "page[size]",
+									"value": "100",
+									"equals": true
+								},
+								{
+									"key": "page",
+									"value": "2",
+									"equals": true,
+									"disabled": true
+								}
+							]
+						},
+						"description": "Returns the second set of property ids.  This sets them as environment variables prop1---prop200"
+					},
+					"response": []
+				},
+				{
+					"name": "RemoveLibraries",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "3cf8f35d-73f6-4a58-a28c-713143f99d86",
+								"type": "text/javascript",
+								"exec": [
+									"// Loop over set of properties and delete all libraries",
+									"var i = 0;",
+									"var endPoint =  pm.globals.get(\"setSize\");",
+									"",
+									"//build loop over properties to loop through them.",
+									"",
+									"while (i <  endPoint) {",
+									"    pm.environment.set(\"dPropLoopCounter\", i);",
+									"    var tempPropertyID = pm.environment.get(\"prop\"+i+\"\");",
+									"    if (typeof tempPropertyID !== \"undefined\") {",
+									"    console.log(\"Property Loop: \"+i+\" : \"+tempPropertyID+\"\");",
+									"    pm.environment.set(\"dPropID\", \"\"+tempPropertyID+\"\");",
+									"",
+									"            ",
+									"            //get list of libraries",
+									"            ",
+									"                pm.sendRequest({",
+									"                    url: \"https://mc-api-activation-reactor.adobe.io/properties/\"+tempPropertyID+\"/libraries\",",
+									"                    method: \"GET\",",
+									"                    header: {",
+									"                        \"content-type\": \"application/json\",",
+									"                        \"accept\": \"application/vnd.api+json;revision=1\",",
+									"                        \"authorization\": pm.globals.get(\"bearertoken\"),",
+									"                        \"x-api-key\" : pm.globals.get(\"apikey\")",
+									"                         }",
+									"                    ",
+									"                 },",
+									"                        function(err, res) {",
+									"                           // console.log(res.json());",
+									"                            var jsonData = res.json();",
+									"                            var last = jsonData.data[jsonData.data.length - 1];",
+									"                                    var r = 0;",
+									"                                    //loop over data set if there is one.",
+									"                                    ",
+									"                                    while (r < jsonData.data.length) {",
+									"                                        var LibToDelete = jsonData.data[r].id;",
+									"",
+									"                                            pm.sendRequest({",
+									"                                                url: \"https://mc-api-activation-reactor.adobe.io/libraries/\"+LibToDelete+\"\",",
+									"                                                method: \"DELETE\",",
+									"                                                header: {",
+									"                                                    \"content-type\": \"application/json\",",
+									"                                                    \"accept\": \"application/vnd.api+json;revision=1\",",
+									"                                                    \"authorization\": pm.globals.get(\"bearertoken\"),",
+									"                                                    \"x-api-key\" : pm.globals.get(\"apikey\")",
+									"                                                     }",
+									"                                                ",
+									"                                            });",
+									"                                    ",
+									"                                  ",
+									"                                        r++;",
+									"                                    }",
+									"                    }",
+									"                 );",
+									"",
+									"                // Retrieve the libirary info for requested property",
+									"    } //end if",
+									"    i++;",
+									"",
+									"}",
+									"",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearertoken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "api_key_here"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/vnd.api+json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/vnd.api+json;revision=1"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "data",
+									"value": "",
+									"description": "",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "https://mc-api-activation-reactor.adobe.io/properties/{{prop0}}/libraries",
+							"protocol": "https",
+							"host": [
+								"mc-api-activation-reactor",
+								"adobe",
+								"io"
+							],
+							"path": [
+								"properties",
+								"{{prop0}}",
+								"libraries"
+							]
+						},
+						"description": "This script will loop through all the properties to find the library ids and then delete the libraries.  This only works if the library state is \"development\""
+					},
+					"response": []
+				},
+				{
+					"name": "RemoveDataElements",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "a883e250-fb7f-429c-9ae1-b77563fdf7c9",
+								"type": "text/javascript",
+								"exec": [
+									"// Loop over set of properties and delete all Data Elements",
+									"var i = 0;",
+									"var endPoint =  pm.globals.get(\"setSize\");",
+									"",
+									"//build loop over properties to loop through them.",
+									"",
+									"while (i <  endPoint) {",
+									"    pm.environment.set(\"dPropLoopCounter\", i);",
+									"    var tempPropertyID = pm.environment.get(\"prop\"+i+\"\");",
+									"    if (typeof tempPropertyID !== \"undefined\") {",
+									"    console.log(\"Property Loop: \"+i+\" : \"+tempPropertyID+\"\");",
+									"    pm.environment.set(\"dPropID\", \"\"+tempPropertyID+\"\");",
+									"",
+									"            ",
+									"            //get list of data elements",
+									"            ",
+									"                pm.sendRequest({",
+									"                    url: \"https://mc-api-activation-reactor.adobe.io/properties/\"+tempPropertyID+\"/data_elements\",",
+									"                    method: \"GET\",",
+									"                    header: {",
+									"                        \"content-type\": \"application/json\",",
+									"                        \"accept\": \"application/vnd.api+json;revision=1\",",
+									"                        \"authorization\": pm.globals.get(\"bearertoken\"),",
+									"                        \"x-api-key\" : pm.globals.get(\"apikey\")",
+									"                         }",
+									"                    ",
+									"                 },",
+									"                        function(err, res) {",
+									"                            console.log(res.json());",
+									"                            var jsonData = res.json();",
+									"                            var last = jsonData.data[jsonData.data.length - 1];",
+									"                                    var r = 0;",
+									"                                    //loop over data set if there is one.",
+									"                                    ",
+									"                                    while (r < jsonData.data.length) {",
+									"                                        var DEToDelete = jsonData.data[r].id;",
+									"",
+									"                                            pm.sendRequest({",
+									"                                                url: \"https://mc-api-activation-reactor.adobe.io/data_elements/\"+DEToDelete+\"\",",
+									"                                                method: \"DELETE\",",
+									"                                                header: {",
+									"                                                    \"content-type\": \"application/json\",",
+									"                                                    \"accept\": \"application/vnd.api+json;revision=1\",",
+									"                                                    \"authorization\": pm.globals.get(\"bearertoken\"),",
+									"                                                    \"x-api-key\" : pm.globals.get(\"apikey\")",
+									"                                                     }",
+									"                                                ",
+									"                                            });",
+									"                                    ",
+									"                                  ",
+									"                                        r++;",
+									"                                    }",
+									"                    }",
+									"                 );",
+									"",
+									"                // Retrieve the data element info for requested property",
+									"",
+									"   ",
+									"    } // end if",
+									"     i++;",
+									"}",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearertoken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "api_key_here"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/vnd.api+json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/vnd.api+json;revision=1"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "data",
+									"value": "",
+									"description": "",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "https://mc-api-activation-reactor.adobe.io/properties/{{prop0}}/data_elements",
+							"protocol": "https",
+							"host": [
+								"mc-api-activation-reactor",
+								"adobe",
+								"io"
+							],
+							"path": [
+								"properties",
+								"{{prop0}}",
+								"data_elements"
+							]
+						},
+						"description": null
+					},
+					"response": []
+				},
+				{
+					"name": "RemoveExtensions",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "33befe24-3d5e-48d2-b631-6f0cada871f7",
+								"type": "text/javascript",
+								"exec": [
+									"// Loop over set of properties and delete all extensions",
+									"var i = 0;",
+									"//var endPoint = 10;",
+									"var endPoint =  pm.globals.get(\"setSize\");",
+									"",
+									"//build loop over properties to loop through them.",
+									"",
+									"while (i <  endPoint) {",
+									"",
+									"    var tempPropertyID = pm.environment.get(\"prop\"+i+\"\");",
+									"    if (typeof tempPropertyID !== \"undefined\") {",
+									"        console.log(\"Property Loop: \"+i+\" : \"+tempPropertyID+\"\");",
+									"    ",
+									"                ",
+									"                //get list of libraries",
+									"                ",
+									"                    pm.sendRequest({",
+									"                        url: \"https://mc-api-activation-reactor.adobe.io/properties/\"+tempPropertyID+\"/extensions\",",
+									"                        method: \"GET\",",
+									"                        header: {",
+									"                            \"content-type\": \"application/json\",",
+									"                            \"accept\": \"application/vnd.api+json;revision=1\",",
+									"                            \"authorization\": pm.globals.get(\"bearertoken\"),",
+									"                            \"x-api-key\" : pm.globals.get(\"apikey\")",
+									"                             }",
+									"                        ",
+									"                     },",
+									"                            function(err, res) {",
+									"                                console.log(res.json());",
+									"                                var jsonData = res.json();",
+									"                               ",
+									"                                var r = 0;",
+									"                                        //loop over data set if there is one.",
+									"                                    if (typeof jsonData !== \"undefined\") {  ",
+									"                                        var last = jsonData.data[jsonData.data.length - 1];",
+									"                                        while (r < jsonData.data.length) {",
+									"                                            var EXToDelete = jsonData.data[r].id;",
+									"                                            var coreCheck = jsonData.data[r].attributes.name;",
+									"                                            console.log(coreCheck);",
+									"                                            if (coreCheck !== \"core\") {",
+									"                                            ",
+									"                                                pm.sendRequest({",
+									"                                                    url: \"https://mc-api-activation-reactor.adobe.io/extensions/\"+EXToDelete+\"\",",
+									"                                                    method: \"DELETE\",",
+									"                                                    header: {",
+									"                                                        \"content-type\": \"application/json\",",
+									"                                                        \"accept\": \"application/vnd.api+json;revision=1\",",
+									"                                                        \"authorization\": pm.globals.get(\"bearertoken\"),",
+									"                                                        \"x-api-key\" : pm.globals.get(\"apikey\")",
+									"                                                         }",
+									"                                                    ",
+									"                                                });  ",
+									"                                        ",
+									"                                            }",
+									"                                            r++;",
+									"                                        }",
+									"                                    } // end if ",
+									"                        }",
+									"                     );",
+									"    ",
+									"                    // Retrieve the libirary info for requested property",
+									"    ",
+									"      ",
+									"    }  //end if",
+									"      i++;",
+									"}",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearertoken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "api_key_here"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/vnd.api+json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/vnd.api+json;revision=1"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "data",
+									"value": "",
+									"description": "",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "https://mc-api-activation-reactor.adobe.io/properties/{{prop0}}/extensions",
+							"protocol": "https",
+							"host": [
+								"mc-api-activation-reactor",
+								"adobe",
+								"io"
+							],
+							"path": [
+								"properties",
+								"{{prop0}}",
+								"extensions"
+							]
+						},
+						"description": null
+					},
+					"response": []
+				},
+				{
+					"name": "RemoveRules",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "86037879-518b-4766-b3d8-5ffb87108b3f",
+								"type": "text/javascript",
+								"exec": [
+									"// Loop over set of properties and delete all libraries",
+									"var i = 0;",
+									"var endPoint =  pm.globals.get(\"setSize\");",
+									"//var endPoint = 4;",
+									"",
+									"//build loop over properties to loop through them.",
+									"",
+									"while (i <  endPoint) {",
+									"    pm.environment.set(\"dPropLoopCounter\", i);",
+									"    var tempPropertyID = pm.environment.get(\"prop\"+i+\"\");",
+									"    if (typeof tempPropertyID !== \"undefined\") {",
+									"                console.log(\"Property Loop: \"+i+\" : \"+tempPropertyID+\"\");",
+									"   ",
+									"                        //get list of rules by property",
+									"                        ",
+									"                            pm.sendRequest({",
+									"                                url: \"https://mc-api-activation-reactor.adobe.io/properties/\"+tempPropertyID+\"/rules\",",
+									"                                method: \"GET\",",
+									"                                header: {",
+									"                                    \"content-type\": \"application/json\",",
+									"                                    \"accept\": \"application/vnd.api+json;revision=1\",",
+									"                                    \"authorization\": pm.globals.get(\"bearertoken\"),",
+									"                                    \"x-api-key\" : pm.globals.get(\"apikey\")",
+									"                                     }",
+									"                                ",
+									"                             },",
+									"                                    function(err, res) {",
+									"                                        console.log(res.json());",
+									"                                        var RulesData = res.json();",
+									"                                        var last = RulesData.data[RulesData.data.length - 1];",
+									"                                        var r = 0;",
+									"                                                //loop over data set if there is one.",
+									"                                        ",
+									"                                        //loops through rule rules to get rule components and deletes each one",
+									"                                        while (r < RulesData.data.length) {",
+									"                                        ",
+									"                                           var ridtemp = RulesData.data[r].id;",
+									"                                           // console.log(temp);",
+									"                                           pm.sendRequest({",
+									"                                                url: \"https://mc-api-activation-reactor.adobe.io/rules/\"+ridtemp+\"/rule_components \",",
+									"                                                method: \"GET\",",
+									"                                                header: {",
+									"                                                    \"content-type\": \"application/json\",",
+									"                                                    \"accept\": \"application/vnd.api+json;revision=1\",",
+									"                                                    \"authorization\": pm.globals.get(\"bearertoken\"),",
+									"                                                    \"x-api-key\" : pm.globals.get(\"apikey\")",
+									"                                                     }",
+									"                                                ",
+									"                                             },",
+									"                                              function(err, res) {",
+									"                                                    console.log(res.json());",
+									"                                                    var RulesCommpData = res.json();",
+									"                                                    var last = RulesCommpData.data[RulesCommpData.data.length - 1];",
+									"                                                    var rc = 0;",
+									"                                                    while (rc < RulesData.data.length) {",
+									"                                                               ",
+									"                                                            var rcidtemp = RulesCommpData.data[rc].id;",
+									"                                                            pm.sendRequest({",
+									"                                                                url: \"https://mc-api-activation-reactor.adobe.io/rule_components/\"+rcidtemp+\"\",",
+									"                                                                method: \"DELETE\",",
+									"                                                                header: {",
+									"                                                                    \"content-type\": \"application/json\",",
+									"                                                                    \"accept\": \"application/vnd.api+json;revision=1\",",
+									"                                                                    \"authorization\": pm.globals.get(\"bearertoken\"),",
+									"                                                                    \"x-api-key\" : pm.globals.get(\"apikey\")",
+									"                                                                     }",
+									"                                                             });",
+									"                                                             rc++;",
+									"                                                    } // end RC While loop",
+									"                                                 } // end function for RC Data",
+									"                                            ); // end send request for list of rule componets",
+									"                                        // now that the rule is empty, delete the rule",
+									"                                        var ruleToDelete =  ridtemp;",
+									"                                            pm.sendRequest({",
+									"                                                url: \"https://mc-api-activation-reactor.adobe.io/rules/\"+ruleToDelete+\"\",",
+									"                                                method: \"DELETE\",",
+									"                                                header: {",
+									"                                                    \"content-type\": \"application/json\",",
+									"                                                    \"accept\": \"application/vnd.api+json;revision=1\",",
+									"                                                    \"authorization\": pm.globals.get(\"bearertoken\"),",
+									"                                                    \"x-api-key\" : pm.globals.get(\"apikey\")",
+									"                                                     }",
+									"                                                ",
+									"                                             });",
+									"                                         r++;",
+									"                                        }  // end while for Rules Loop ",
+									"                             ",
+									"                                  });  // end send request for rules contolling loop",
+									"                           ",
+									"            ",
+									"               ",
+									"                } // end if",
+									"     i++;",
+									"    ",
+									"} // end for while that starts it all",
+									"",
+									"",
+									"",
+									"",
+									"",
+									"",
+									"",
+									"",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearertoken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "api_key_here"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/vnd.api+json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/vnd.api+json;revision=1"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "data",
+									"value": "",
+									"description": "",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "https://mc-api-activation-reactor.adobe.io/properties/{{prop16}}/rules",
+							"protocol": "https",
+							"host": [
+								"mc-api-activation-reactor",
+								"adobe",
+								"io"
+							],
+							"path": [
+								"properties",
+								"{{prop16}}",
+								"rules"
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Rules Test",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "25969884-3a22-452f-a855-bae2c3c555e9",
+								"type": "text/javascript",
+								"exec": [
+									"// Loop over set of properties and delete all libraries",
+									"var i = 0;",
+									"var endPoint =  pm.globals.get(\"setSize\");",
+									"//var endPoint = 50;",
+									"",
+									"//build loop over properties to loop through them.",
+									"",
+									"while (i <  endPoint) {",
+									"    pm.environment.set(\"dPropLoopCounter\", i);",
+									"    var tempPropertyID = pm.environment.get(\"prop\"+i+\"\");",
+									"    if (typeof tempPropertyID !== \"undefined\") {",
+									"                console.log(\"Property Loop: \"+i+\" : \"+tempPropertyID+\"\");",
+									"   ",
+									"                        //get list of rules by property",
+									"                        ",
+									"                            pm.sendRequest({",
+									"                                url: \"https://mc-api-activation-reactor.adobe.io/properties/\"+tempPropertyID+\"/rules\",",
+									"                                method: \"GET\",",
+									"                                header: {",
+									"                                    \"content-type\": \"application/json\",",
+									"                                    \"accept\": \"application/vnd.api+json;revision=1\",",
+									"                                    \"authorization\": pm.globals.get(\"bearertoken\"),",
+									"                                    \"x-api-key\" : pm.globals.get(\"apikey\")",
+									"                                     }",
+									"                                ",
+									"                             },",
+									"                                    function(err, res) {",
+									"                                        console.log(res.json());",
+									"                                        var RulesData = res.json();",
+									"                                        var last = RulesData.data[RulesData.data.length - 1];",
+									"                                        var r = 0;",
+									"                                                //loop over data set if there is one.",
+									"                                        ",
+									"                                        //loops through rule rules to get rule components and deletes each one",
+									"                                        while (r < RulesData.data.length) {",
+									"                                             var ridtemp = RulesData.data[r].id;",
+									"                                        /*",
+									"                                           var ridtemp = RulesData.data[r].id;",
+									"                                           // console.log(temp);",
+									"                                           pm.sendRequest({",
+									"                                                url: \"https://mc-api-activation-reactor.adobe.io/rules/\"+ridtemp+\"/rule_components \",",
+									"                                                method: \"GET\",",
+									"                                                header: {",
+									"                                                    \"content-type\": \"application/json\",",
+									"                                                    \"accept\": \"application/vnd.api+json;revision=1\",",
+									"                                                    \"authorization\": pm.globals.get(\"bearertoken\"),",
+									"                                                    \"x-api-key\" : pm.globals.get(\"apikey\")",
+									"                                                     }",
+									"                                                ",
+									"                                             },",
+									"                                              function(err, res) {",
+									"                                                    console.log(res.json());",
+									"                                                    var RulesCommpData = res.json();",
+									"                                                    var last = RulesCommpData.data[RulesCommpData.data.length - 1];",
+									"                                                    var rc = 0;",
+									"                                                    while (rc < RulesData.data.length) {",
+									"                                                               ",
+									"                                                            var rcidtemp = RulesCommpData.data[rc].id;",
+									"                                                            pm.sendRequest({",
+									"                                                                url: \"https://mc-api-activation-reactor.adobe.io/rule_components/\"+rcidtemp+\"\",",
+									"                                                                method: \"DELETE\",",
+									"                                                                header: {",
+									"                                                                    \"content-type\": \"application/json\",",
+									"                                                                    \"accept\": \"application/vnd.api+json;revision=1\",",
+									"                                                                    \"authorization\": pm.globals.get(\"bearertoken\"),",
+									"                                                                    \"x-api-key\" : pm.globals.get(\"apikey\")",
+									"                                                                     }",
+									"                                                             });",
+									"                                                             rc++;",
+									"                                                    } // end RC While loop",
+									"                                                 } // end function for RC Data",
+									"                                            ); // end send request for list of rule componets",
+									"                                        // now that the rule is empty, delete the rule",
+									"                                        ",
+									"                                        */",
+									"                                        ",
+									"                                        var ruleToDelete =  ridtemp;",
+									"                                            pm.sendRequest({",
+									"                                                url: \"https://mc-api-activation-reactor.adobe.io/rules/\"+ruleToDelete+\"\",",
+									"                                                method: \"DELETE\",",
+									"                                                header: {",
+									"                                                    \"content-type\": \"application/json\",",
+									"                                                    \"accept\": \"application/vnd.api+json;revision=1\",",
+									"                                                    \"authorization\": pm.globals.get(\"bearertoken\"),",
+									"                                                    \"x-api-key\" : pm.globals.get(\"apikey\")",
+									"                                                     }",
+									"                                                ",
+									"                                             });",
+									"                                         r++;",
+									"                                        }  // end while for Rules Loop ",
+									"                             ",
+									"                                  });  // end send request for rules contolling loop",
+									"                           ",
+									"            ",
+									"               ",
+									"                } // end if",
+									"     i++;",
+									"    ",
+									"} // end for while that starts it all",
+									"",
+									"",
+									"",
+									"",
+									"",
+									"",
+									"",
+									"",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearertoken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "api_key_here"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/vnd.api+json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/vnd.api+json;revision=1"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "data",
+									"value": "",
+									"description": "",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "https://mc-api-activation-reactor.adobe.io/properties/{{prop16}}/rules",
+							"protocol": "https",
+							"host": [
+								"mc-api-activation-reactor",
+								"adobe",
+								"io"
+							],
+							"path": [
+								"properties",
+								"{{prop16}}",
+								"rules"
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "CleanAdapters",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "4ac2de39-2297-4af5-83ec-a96a7562231e",
+								"type": "text/javascript",
+								"exec": [
+									"// Loop over set of properties and delete all libraries",
+									"var i = 0;",
+									"//var endPoint = 10;",
+									"var endPoint =  pm.globals.get(\"setSize\");",
+									"",
+									"//build loop over properties to loop through them.",
+									"",
+									"while (i <  endPoint) {",
+									"",
+									"    var tempPropertyID = pm.environment.get(\"prop\"+i+\"\");",
+									"    if (typeof tempPropertyID !== \"undefined\") {",
+									"       // console.log(\"Property Loop: \"+i+\" : \"+tempPropertyID+\"\");",
+									"                ",
+									"                //get list of adapters",
+									"                ",
+									"                    pm.sendRequest({",
+									"                        url: \"https://mc-api-activation-reactor.adobe.io/properties/\"+tempPropertyID+\"/adapters\",",
+									"                        method: \"GET\",",
+									"                        header: {",
+									"                            \"content-type\": \"application/json\",",
+									"                            \"accept\": \"application/vnd.api+json;revision=1\",",
+									"                            \"authorization\": pm.globals.get(\"bearertoken\"),",
+									"                            \"x-api-key\" : pm.globals.get(\"apikey\")",
+									"                             }",
+									"                        ",
+									"                     },",
+									"                            function(err, res) {",
+									"                                console.log(res.json());",
+									"                                var jsonData = res.json();",
+									"                               ",
+									"                                var r = 0;",
+									"                                        //loop over data set if there is one.",
+									"                                    if (typeof jsonData !== \"undefined\") {  ",
+									"                                        var last = jsonData.data[jsonData.data.length - 1];",
+									"                                        while (r < jsonData.data.length) {",
+									"                                            var EXToDelete = jsonData.data[r].id;",
+									"                                            var coreCheck = jsonData.data[r].attributes.name;",
+									"                                          //  console.log(coreCheck);",
+									"                                            if (coreCheck !== \"Adobe Hosted\") {",
+									"                                            ",
+									"                                                pm.sendRequest({",
+									"                                                    url: \"https://mc-api-activation-reactor.adobe.io/adapters/\"+EXToDelete+\"\",",
+									"                                                    method: \"DELETE\",",
+									"                                                    header: {",
+									"                                                        \"content-type\": \"application/json\",",
+									"                                                        \"accept\": \"application/vnd.api+json;revision=1\",",
+									"                                                        \"authorization\": pm.globals.get(\"bearertoken\"),",
+									"                                                        \"x-api-key\" : pm.globals.get(\"apikey\")",
+									"                                                         }",
+									"                                                    ",
+									"                                                });  ",
+									"                                        ",
+									"                                            }",
+									"                                            r++;",
+									"                                        }",
+									"                                    } // end if ",
+									"                        }",
+									"                     );",
+									"    ",
+									"                    // Retrieve the libirary info for requested property",
+									"    ",
+									"      ",
+									"    }  //end if",
+									"      i++;",
+									"}",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearertoken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "api_key_here"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/vnd.api+json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/vnd.api+json;revision=1"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "data",
+									"value": "",
+									"description": "",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "https://mc-api-activation-reactor.adobe.io/properties/{{prop0}}/adapters",
+							"protocol": "https",
+							"host": [
+								"mc-api-activation-reactor",
+								"adobe",
+								"io"
+							],
+							"path": [
+								"properties",
+								"{{prop0}}",
+								"adapters"
+							]
+						},
+						"description": null
+					},
+					"response": []
+				},
+				{
+					"name": "ExtensionListByProperty",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearertoken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "api_key_here"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/vnd.api+json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/vnd.api+json;revision=1"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "data",
+									"value": "",
+									"description": "",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "https://mc-api-activation-reactor.adobe.io/properties/PRb5fec4991bbc42baa3ce1babe4af0c17/extensions",
+							"protocol": "https",
+							"host": [
+								"mc-api-activation-reactor",
+								"adobe",
+								"io"
+							],
+							"path": [
+								"properties",
+								"PRb5fec4991bbc42baa3ce1babe4af0c17",
+								"extensions"
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "EnvironmentListByProperty",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearertoken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "api_key_here"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/vnd.api+json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/vnd.api+json;revision=1"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "data",
+									"value": "",
+									"description": "",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "https://mc-api-activation-reactor.adobe.io/properties/PRbab7de55da6b458fbedd64eb792f9961/environments",
+							"protocol": "https",
+							"host": [
+								"mc-api-activation-reactor",
+								"adobe",
+								"io"
+							],
+							"path": [
+								"properties",
+								"PRbab7de55da6b458fbedd64eb792f9961",
+								"environments"
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "DataElementsListByProperty",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearertoken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "api_key_here"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/vnd.api+json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/vnd.api+json;revision=1"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "data",
+									"value": "",
+									"description": "",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "https://mc-api-activation-reactor.adobe.io/properties/{{prop1}}/data_elements",
+							"protocol": "https",
+							"host": [
+								"mc-api-activation-reactor",
+								"adobe",
+								"io"
+							],
+							"path": [
+								"properties",
+								"{{prop1}}",
+								"data_elements"
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "b8a8c48a-e787-4134-ac9f-d4104b3b9186",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "38d51820-ff99-469e-8ccb-28dae14e8cd3",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
